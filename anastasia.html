@@ -7,7 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
-  emailjs.init("Fj3IkXRi9NvF9LxGY");
+  if (window.emailjs) {
+    emailjs.init("Fj3IkXRi9NvF9LxGY");
+  }
 </script>
 <style>
   :root {
@@ -50,9 +52,9 @@
   }
 
   /* Pantallas */
-  .screen { display: none; animation: fadeUp 0.5s ease forwards; }
-  .screen.active { display: block; }
-  #screen-intro.active { display: flex; }
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeUp 0.5s ease forwards; }
+  #screen-intro.active { display: flex; flex-direction: column; align-items: center; text-align: center; }
 
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
@@ -61,9 +63,6 @@
 
   /* Intro */
   #screen-intro {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
     padding: 60px 24px;
   }
 
@@ -437,3 +436,486 @@
     cursor: pointer;
     transition: all 0.2s;
   }
+
+  .btn-instagram:hover { border-color: #E1306C; color: #E1306C; }
+
+  .btn-retry {
+    margin: 24px 0 48px;
+    background: transparent;
+    border: 1px solid var(--surface2);
+    color: var(--muted);
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-retry:hover { border-color: var(--muted); color: var(--text); }
+
+  .no-contact-msg { text-align: center; padding: 40px 0; font-size: 15px; line-height: 1.7; color: var(--muted); }
+
+  .no-contact-msg strong {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 480px) {
+    .options-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- INTRO -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-author-box">
+      <div class="intro-author-name">ANASTASIA IAMACHKINE</div>
+      <div class="intro-author-role">Mentora & Empresaria</div>
+    </div>
+
+    <h1 class="intro-title">¿Qué tipo de <span class="highlight">líder</span> llevas dentro?</h1>
+
+    <button class="btn-start" id="btn-start">DESCUBRE TU ARQUETIPO →</button>
+
+    <div class="intro-tag">🧠 Test de Liderazgo · 3 min</div>
+
+    <div class="intro-bio">
+      <p>Años construyendo equipos, liderando con propósito y transformando resultados a nivel internacional.</p>
+      <p>En el camino he visto un patrón claro: el éxito real no lo determina el azar, sino la mentalidad.</p>
+      <p>Lo determina quién eres tú cuando nadie te está mirando.</p>
+      <p>Este test no tiene respuestas correctas. Tiene respuestas honestas.</p>
+    </div>
+
+    <p class="intro-sub">
+      7 preguntas que revelan tu arquetipo real.<br>
+      Sin filtros. Sin lo que crees que deberías responder.
+    </p>
+
+    <div class="pill-row">
+      <span class="pill">⏱ 3 minutos</span>
+      <span class="pill">🎯 7 preguntas</span>
+      <span class="pill">🔥 100% sin filtros</span>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="screen" id="screen-quiz">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="progress-label">Tu progreso</span>
+        <span class="progress-count" id="progress-count"></span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+    </div>
+    <div id="question-container"></div>
+    <div class="nav-row">
+      <button class="btn-back" id="btn-back">← ATRÁS</button>
+      <button class="btn-next" id="btn-next">SIGUIENTE →</button>
+    </div>
+  </div>
+
+  <!-- FORMULARIO -->
+  <div class="screen" id="screen-form">
+    <div class="form-screen">
+      <span class="form-tag">📊 Casi listo</span>
+      <h2 class="form-title">Tu resultado está listo</h2>
+      <p class="form-sub">Deja tu nombre e Instagram para ver tu arquetipo completo.</p>
+      <div class="form-group">
+        <label class="form-label" for="input-name">Tu nombre</label>
+        <input class="form-input" type="text" id="input-name" placeholder="Como quieres que te llamen">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="input-instagram">Instagram</label>
+        <input class="form-input" type="text" id="input-instagram" placeholder="@tu_usuario">
+      </div>
+      <button class="btn-submit" id="btn-submit">VER MI ARQUETIPO →</button>
+      <p class="privacy-note">Sin spam. Solo tu resultado.</p>
+    </div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="screen" id="screen-result">
+    <div class="result-screen" id="result-content"></div>
+  </div>
+
+</div>
+
+<script>
+const CONFIG = {
+  whatsapp: '34602141310',
+  instagram: 'https://instagram.com/anastasia.iamachkine',
+  emailTo: 'anastasia.iamachkine@gmail.com',
+  emailjs: { 
+    service: 'service_vrz2bgz', 
+    template: 'template_2uh3ev2' 
+  },
+  minTotalScore: 5
+};
+
+const ARCHETYPES = {
+  heroe: {
+    emoji: '⚔️', label: 'Héroe', title: 'EL\nHÉROE', qualifies: true, color: '#FFD600',
+    subtitle: 'Naciste para superar límites',
+    desc: 'No huyes del desafío — lo buscas. Tu motor es la superación. Cuando otros se detienen, tú arrancas. El problema es que a veces confundes el esfuerzo con el progreso.',
+    insight: 'Las personas con tu arquetipo logran resultados extraordinarios cuando encuentran el vehículo correcto. La energía está. El siguiente paso es dirigirla bien.'
+  },
+  gobernante: {
+    emoji: '👑', label: 'Gobernante', title: 'EL\nGOBERNANTE', qualifies: false, color: '#FFD600',
+    subtitle: 'Ves el tablero completo',
+    desc: 'Piensas en sistemas, no en pasos. Quieres control y estructura porque sabes que sin ellos, nada escala. Tu reto es soltar el control cuando el equipo lo requiere.',
+    insight: 'El Gobernante construye imperios cuando aprende a delegar. Tu visión es tu mayor activo — asegúrate de que el vehículo que eliges la pueda sostener.'
+  },
+  sabio: {
+    emoji: '🔮', label: 'Sabio', title: 'EL\nSABIO', qualifies: true, color: '#FFD600',
+    subtitle: 'Tu mayor activo es la claridad',
+    desc: 'Antes de actuar, entiendes. Eso te hace lento a veces, pero rara vez te equivocas dos veces en lo mismo. Tu propósito va más allá del dinero — buscas impacto real.',
+    insight: 'El Sabio transforma comunidades cuando encuentra la plataforma correcta. Tu capacidad de enseñar y guiar es exactamente lo que este modelo necesita.'
+  },
+  explorador: {
+    emoji: '🧭', label: 'Explorador', title: 'EL\nEXPLORADOR', qualifies: true, color: '#FFD600',
+    subtitle: 'La libertad es tu combustible',
+    desc: 'No trabajas para acumular — trabajas para vivir. La autonomía no es un lujo para ti, es una necesidad. Cuando algo te encadena, pierdes energía aunque ganes dinero.',
+    insight: 'El Explorador prospera en modelos donde la geografía y el tiempo dejan de ser obstáculos. Lo que ofreces puede ser construido desde cualquier lugar.'
+  },
+  rebelde: {
+    emoji: '🔥', label: 'Rebelde', title: 'EL\nREBELDE', qualifies: true, color: '#FFD600',
+    subtitle: 'Desafías el sistema porque lo entiendes mejor que nadie',
+    desc: 'No rompes reglas por capricho — las rompes porque ves sus limitaciones. Tu energía es disruptiva y eso incomoda a quienes prefieren el statu quo. Pero cuando esa energía tiene dirección, construyes cosas que otros no se atreven a intentar.',
+    insight: 'El Rebelde prospera cuando encuentra una causa que vale la pena defender. Lo que ofrezco no es un sistema rígido — es un vehículo que se adapta a quienes piensan diferente.'
+  },
+  creador: {
+    emoji: '🌱', label: 'Creador', title: 'EL\nCREADOR', qualifies: true, color: '#FFD600',
+    subtitle: 'Construyes desde cero lo que otros no ven todavía',
+    desc: 'Tienes visión a largo plazo y la paciencia para ejecutarla. No buscas atajos — buscas construir algo que dure. Tu mayor riesgo es quedarte en la planificación sin dar el primer paso.',
+    insight: 'El Creador necesita el vehículo correcto para materializar su visión. Lo que ofrezco es una estructura probada para construir sobre ella — no desde cero.'
+  },
+  aliado: {
+    emoji: '🤝', label: 'Aliado', title: 'EL\nALIADO', qualifies: true, color: '#FFD600',
+    subtitle: 'Tu mayor poder es hacer crecer a otros',
+    desc: 'Lideras desde el servicio. No necesitas el protagonismo — necesitas ver a tu equipo ganar. Eso no es debilidad, es el tipo de liderazgo más escaso y más poderoso que existe.',
+    insight: 'El modelo de red fue diseñado para personas como tú. Cuando el Aliado encuentra su tribu, multiplica resultados que el Héroe solo nunca alcanzaría.'
+  },
+  espectador: {
+    emoji: '😴', label: 'Espectador', title: 'EL\nESPECTADOR', qualifies: false, color: '#6b6b80',
+    subtitle: 'Observas la vida desde la barrera',
+    desc: 'Tienes curiosidad pero no urgencia. Ves oportunidades, las evalúas, y sigues esperando el momento perfecto. El problema es que ese momento nunca llega solo.',
+    insight: 'La vida no premia a los que esperan — premia a los que actúan con información imperfecta. Cuando estés listo para moverte, el camino existe.'
+  },
+  esceptico: {
+    emoji: '🎭', label: 'Escéptico', title: 'EL\nESCÉPTICO', qualifies: false, color: '#6b6b80',
+    subtitle: 'Analizas todo pero no mueves nada',
+    desc: 'Tienes una mente crítica y eso tiene valor. Pero el análisis sin acción es solo ruido mental. Usas las preguntas como escudo para no tener que decidir.',
+    insight: 'El escepticismo protege del error, pero también bloquea el progreso. Cuando encuentres algo que supere tu filtro crítico, lo sabrás. Ese día, escríbeme.'
+  },
+  huerfano: {
+    emoji: '🌑', label: 'Huérfano', title: 'EL\nHUÉRFANO', qualifies: false, color: '#6b6b80',
+    subtitle: 'Buscas seguridad antes que crecimiento',
+    desc: 'No es debilidad — es una etapa. El Huérfano necesita estabilidad antes de poder construir. El problema es cuando esa búsqueda de seguridad se convierte en el techo.',
+    insight: 'Antes de dar el siguiente paso, hay trabajo interno que hacer. Cuando estés listo para moverte desde la decisión y no desde el miedo, el camino existe.'
+  }
+};
+
+const SCORED = ['heroe', 'gobernante', 'sabio', 'explorador', 'rebelde', 'creador', 'aliado', 'espectador', 'esceptico'];
+const s = (...v) => Object.fromEntries(SCORED.map((k, i) => [k, v[i]]));
+
+const QUESTIONS = [
+  {
+    title: 'LLEVAS MESES HACIENDO LO MISMO.',
+    sub: 'Los resultados no cambian. ¿Qué haces?',
+    options: [
+      { emoji: '🔄', text: 'Busco qué estoy haciendo mal y cambio el enfoque', sub: 'El error me da información', score: s(3,1,1,1,2,1,0,0,0) },
+      { emoji: '🧱', text: 'Sigo adelante, los resultados llegan con consistencia', sub: 'La disciplina por encima de todo', score: s(1,2,0,0,0,1,1,1,0) },
+      { emoji: '🔍', text: 'Busco a alguien que ya lo haya resuelto y aprendo de él', sub: 'No reinvento lo que ya funciona', score: s(1,1,3,1,0,2,2,0,1) },
+      { emoji: '😔', text: 'Me cuesta seguir, necesito ver alguna señal para continuar', sub: 'Sin resultados, pierdo la motivación', score: s(0,0,0,0,0,0,0,3,2) }
+    ]
+  },
+  {
+    title: 'TU INGRESO DESAPARECE MAÑANA.',
+    sub: 'Una sola fuente. Se acaba. ¿Cuál es tu primer movimiento?',
+    options: [
+      { emoji: '📲', text: 'Activo mis contactos y busco una solución inmediata', sub: 'La red es el activo más rápido', score: s(3,1,0,1,2,1,1,0,0) },
+      { emoji: '📋', text: 'Analizo mis opciones antes de moverme', sub: 'Una decisión rápida puede ser una mala decisión', score: s(0,2,3,0,0,1,2,1,2) },
+      { emoji: '🏗️', text: 'Busco crear algo que no dependa de nadie', sub: 'Este momento me obliga a construir bien', score: s(1,1,0,3,2,3,0,0,0) },
+      { emoji: '🫥', text: 'Me paralizo, no sé por dónde empezar', sub: 'El pánico llega antes que el plan', score: s(0,0,0,0,0,0,0,3,1) }
+    ]
+  },
+  {
+    title: 'ALGUIEN CON MÁS EXPERIENCIA TE DICE QUE NO VA A FUNCIONAR.',
+    sub: 'Tu idea. Su criterio. ¿Qué haces?',
+    options: [
+      { emoji: '👂', text: 'Escucho, evalúo y decido por mi cuenta', sub: 'La opinión es dato, no sentencia', score: s(1,3,2,1,1,1,3,0,0) },
+      { emoji: '💪', text: 'Lo tomo como un reto y lo demuestro con hechos', sub: 'El escepticismo ajeno me activa', score: s(3,1,0,2,3,1,0,0,0) },
+      { emoji: '🤔', text: 'Pregunto por qué y busco mejorar la idea', sub: 'Puede tener un punto que no vi', score: s(1,1,2,1,1,2,2,0,2) },
+      { emoji: '😟', text: 'Me genera duda y lo reconsidero todo', sub: 'Una voz con autoridad me desestabiliza', score: s(0,0,0,0,0,0,0,1,3) }
+    ]
+  },
+  {
+    title: 'TIENES QUE TOMAR UNA DECISIÓN IMPORTANTE.',
+    sub: 'Sin información suficiente. ¿Cómo actúas?',
+    options: [
+      { emoji: '⚡', text: 'Decido con lo que tengo y corrijo en el camino', sub: 'La acción genera más información que la espera', score: s(3,1,0,2,2,2,1,0,0) },
+      { emoji: '🔍', text: 'Busco más información antes de moverme', sub: 'Una decisión con más datos es una mejor decisión', score: s(0,2,3,0,0,1,2,1,2) },
+      { emoji: '🔥', text: 'Confío en mi instinto, los datos son secundarios', sub: 'El análisis paraliza, el instinto libera', score: s(2,0,0,3,3,2,1,0,0) },
+      { emoji: '⏳', text: 'Me bloqueo, prefiero esperar a tener más claridad', sub: 'Sin certeza no me muevo', score: s(0,0,0,0,0,0,0,3,3) }
+    ]
+  },
+  {
+    title: 'ANTES DE DORMIR.',
+    sub: '¿Qué aparece primero en tu cabeza?',
+    options: [
+      { emoji: '🔧', text: 'Lo que tengo que mejorar mañana', sub: 'Siempre hay algo que optimizar', score: s(3,2,2,0,2,2,0,0,0) },
+      { emoji: '🏛️', text: 'Lo que construí hoy y hacia dónde voy', sub: 'El progreso acumulado me da dirección', score: s(1,2,1,0,0,3,1,1,0) },
+      { emoji: '🌍', text: 'Las personas que podría impactar con lo que hago', sub: 'El propósito es lo que me sostiene', score: s(1,2,2,2,1,2,3,0,0) },
+      { emoji: '🌀', text: 'Lo que salió mal, me cuesta soltar el pensamiento', sub: 'La mente se queda atrapada en los errores', score: s(0,0,0,0,0,0,0,3,2) }
+    ]
+  },
+  {
+    title: 'YA SABES LO QUE TIENES QUE HACER.',
+    sub: '¿Por qué no lo has hecho?',
+    options: [
+      { emoji: '🔒', text: 'Porque perder lo que tengo me asusta más que ganar lo que quiero', sub: 'La seguridad pesa más que el deseo', score: s(0,1,0,0,0,0,0,3,2) },
+      { emoji: '👥', text: 'Porque nadie a mi alrededor lo ha hecho y no sé si es posible', sub: 'El entorno define el techo', score: s(0,0,0,1,1,0,0,2,3) },
+      { emoji: '⏳', text: 'Porque sigo esperando el momento perfecto', sub: 'Cuando todo esté listo, arranco', score: s(0,1,1,0,0,1,1,3,3) },
+      { emoji: '⚡', text: 'Lo tengo claro y lo estoy haciendo', sub: 'La acción ya empezó', score: s(3,2,2,2,3,3,3,0,0) }
+    ]
+  },
+  {
+    title: '¿CÓMO DESCRIBES TU RELACIÓN CON EL DINERO?',
+    sub: 'En este momento. Sin filtros.',
+    options: [
+      { emoji: '🏗️', text: 'Es una herramienta, la uso para construir más', sub: 'El dinero es medio, no fin', score: s(1,3,1,1,1,3,1,0,0) },
+      { emoji: '🤲', text: 'Lo comparto fácil, me cuesta acumularlo para mí', sub: 'Me mueve más dar que tener', score: s(0,0,2,1,0,1,3,1,0) },
+      { emoji: '🔒', text: 'Me da seguridad pero no me mueve', sub: 'Lo necesito para no preocuparme, no para crecer', score: s(0,1,0,0,0,0,0,3,2) },
+      { emoji: '🚀', text: 'Quiero que trabaje por mí, no al revés', sub: 'El objetivo es la libertad financiera', score: s(2,1,1,3,2,2,2,0,0) }
+    ]
+  }
+];
+
+let currentQ = 0;
+let answers = [];
+
+const $ = id => document.getElementById(id);
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add('active');
+  }
+  window.scrollTo(0, 0);
+}
+
+function calculateScores() {
+  const scores = Object.fromEntries(SCORED.map(k => [k, 0]));
+  answers.forEach((optIndex, qIndex) => {
+    const opt = QUESTIONS[qIndex].options[optIndex];
+    SCORED.forEach(k => { scores[k] += opt.score[k]; });
+  });
+  return scores;
+}
+
+function getDominant(scores) {
+  const total = Object.values(scores).reduce((a, b) => a + b, 0);
+  if (total < CONFIG.minTotalScore) return 'huerfano';
+  return Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+function startQuiz() {
+  currentQ = 0;
+  answers = [];
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const selected = answers[currentQ];
+  const isLast = currentQ === QUESTIONS.length - 1;
+
+  if ($('progress-count'))$('progress-count').textContent = `${currentQ + 1} / ${QUESTIONS.length}`;
+  if ($('progress-bar'))$('progress-bar').style.width = `${((currentQ + 1) / QUESTIONS.length) * 100}%`;
+  if ($('btn-back'))$('btn-back').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+  if ($('btn-next')) {$('btn-next').textContent = isLast ? 'VER MI RESULTADO →' : 'SIGUIENTE →';
+    \$('btn-next').classList.toggle('active', selected !== undefined);
+  }
+
+  const container = \$('question-container');
+  if (container) {
+    container.innerHTML = `
+      <div class="question-num">PREGUNTA 0${currentQ + 1}</div>
+      <h2 class="question-title">${q.title}</h2>
+      <p class="question-sub">${q.sub}</p>
+      <div class="options-grid">
+        ${q.options.map((opt, i) => `
+          <div class="option-card ${selected === i ? 'selected' : ''}" data-index="${i}">
+            <span class="option-emoji">\${opt.emoji}</span>
+            <div class="option-text">\${opt.text}</div>
+            <div class="option-sub">\${opt.sub}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    document.querySelectorAll('.option-card').forEach(card => {
+      card.addEventListener('click', () => {
+        selectOption(parseInt(card.getAttribute('data-index')));
+      });
+    });
+  }
+}
+
+function selectOption(index) {
+  answers[currentQ] = index;
+  document.querySelectorAll('.option-card').forEach((card, i) => {
+    card.classList.toggle('selected', i === index);
+  });
+  if ($('btn-next'))$('btn-next').classList.add('active');
+}
+
+function goNext() {
+  if (answers[currentQ] === undefined) return;
+  if (currentQ < QUESTIONS.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showScreen('screen-form');
+  }
+}
+
+function goBack() {
+  if (currentQ === 0) return;
+  currentQ--;
+  renderQuestion();
+}
+
+function renderBars(scores) {
+  const max = Math.max(...Object.values(scores)) || 1;
+  const light = ['gobernante', 'explorador', 'creador'];
+  const grey = ['espectador', 'esceptico'];
+  const colorFor = k => grey.includes(k) ? '#6b6b80' : light.includes(k) ? '#FFF176' : '#FFD600';
+
+  return Object.entries(scores)
+    .sort((a, b) => b[1] - a[1])
+    .map(([k, v], i) => `
+      <div class="score-bar-row">
+        <span class="score-bar-label">${ARCHETYPES[k].label}</span>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" style="width:${Math.max(8, (v / max) * 100)}%; background:${colorFor(k)}; --delay:${i * 0.15}s;"></div>
+        </div>
+      </div>
+    `).join('');
+}
+
+function renderCta(res) {
+  if (!res.qualifies) {
+    return `
+      <div class="no-contact-msg">
+        <strong>Este no es tu momento.</strong>
+        Lo que ofrezco es para personas que ya tomaron la decisión de moverse. Cuando llegues ahí, sabrás dónde encontrarme.
+      </div>`;
+  }
+  return `
+    <div class="result-cta">
+      <div class="result-cta-title">Anastasia quiere conocerte</div>
+      <p class="result-cta-text">"Para. Deja de scrollear. Deja de pensar. Esto es exactamente lo que buscabas y lo sabes. Escríbeme."</p>
+      <button class="btn-whatsapp" id="btn-whatsapp">📱 ESCRIBIR A ANASTASIA</button><br>
+      <button class="btn-instagram" id="btn-instagram">Prefiero escribirte por Instagram →</button>
+    </div>`;
+}
+
+function showResult() {
+  const nameInput = \$('input-name');
+  const instaInput = \$('input-instagram');
+  const name = nameInput ? nameInput.value.trim() || 'Emprendedora' : 'Emprendedora';
+  const instagram = instaInput ? instaInput.value.trim() || 'No indicado' : 'No indicado';
+  
+  const scores = calculateScores();
+  const dominantKey = getDominant(scores);
+  const res = ARCHETYPES[dominantKey];
+
+  if (window.emailjs) {
+    emailjs.send(CONFIG.emailjs.service, CONFIG.emailjs.template, {
+      to_email: CONFIG.emailTo,
+      to_name: 'Anastasia',
+      user_name: name,
+      user_instagram: instagram,
+      archetype: res.label,
+      scores: JSON.stringify(scores)
+    }).catch(err => console.error('Error emailjs:', err));
+  }
+
+  const content = \$('result-content');
+  if (content) {
+    content.innerHTML = `
+      <span class="result-badge">RESULTADO OFICIAL</span>
+      <span class="result-emoji">${res.emoji}</span>
+      <h1 class="result-title">${res.title}</h1>
+      <p class="result-subtitle">${res.subtitle}</p>
+      <p class="result-desc">${res.desc}</p>
+      
+      <div class="score-bars">
+        ${renderBars(scores)}
+      </div>
+
+      <div class="result-insight">
+        <div class="result-insight-label">ANÁLISIS DE ANASTASIA IAMACHKINE</div>
+        <p class="result-insight-text">${res.insight}</p>
+      </div>
+
+      ${renderCta(res)}
+
+      <button class="btn-retry" id="btn-retry">← Repetir el test</button>
+    `;
+  }
+
+  showScreen('screen-result');
+
+  const btnWa = \$('btn-whatsapp');
+  if (btnWa) {
+    btnWa.addEventListener('click', () => {
+      const msg = encodeURIComponent(`¡Hola Anastasia! Acabo de hacer tu test de liderazgo y mi arquetipo es *${res.label}* (${name} - ${instagram}). Me gustaría hablar contigo.`);
+      window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`, '_blank');
+    });
+  }
+
+  const btnIg = \$('btn-instagram');
+  if (btnIg) {
+    btnIg.addEventListener('click', () => {
+      window.open(CONFIG.instagram, '_blank');
+    });
+  }
+
+  const btnRetry = \$('btn-retry');
+  if (btnRetry) {
+    btnRetry.addEventListener('click', () => {
+      startQuiz();
+    });
+  }
+}
+
+// Event Listeners iniciales
+document.addEventListener('DOMContentLoaded', () => {
+  const btnStart = \$('btn-start');
+  if (btnStart) btnStart.addEventListener('click', startQuiz);
+
+  const btnNext = \$('btn-next');
+  if (btnNext) btnNext.addEventListener('click', goNext);
+
+  const btnBack = \$('btn-back');
+  if (btnBack) btnBack.addEventListener('click', goBack);
+
+  const btnSubmit = \$('btn-submit');
+  if (btnSubmit) btnSubmit.addEventListener('click', showResult);
+});
+</script>
+</body>
+</html>
