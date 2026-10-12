@@ -1,399 +1,439 @@
-¡Ah, ya te entiendo perfectamente! Te refieres al botón amarillo principal de la pantalla de bienvenida (**"DESCUBRE TU ARQUETIPO →"**).
-
-El motivo por el cual ese botón no responde al hacerle clic es un pequeño detalle en la inicialización de los eventos en JavaScript. En el código, el evento `DOMContentLoaded` se ejecuta **antes** de que el navegador termine de asegurar que todos los elementos están listos, o hay un conflicto con la forma en que busca el botón `#btn-start`.
-
-Vamos a solucionarlo definitivamente reemplazando únicamente la sección final de los scripts por esta versión corregida que fuerza la vinculación del botón de forma directa y segura.
-
-Sustituye todo el bloque `<script>` que está al final de tu archivo por este:
-
-```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Qué tipo de líder llevas dentro? · Anastasia Iamachkine</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
-const CONFIG = {
-  whatsapp: '34602141310',
-  instagram: 'https://instagram.com/anastasia.iamachkine',
-  emailTo: 'anastasia.iamachkine@gmail.com',
-  emailjs: { 
-    service: 'service_vrz2bgz', 
-    template: 'template_2uh3ev2' 
-  },
-  minTotalScore: 5
-};
-
-const ARCHETYPES = {
-  heroe: {
-    emoji: '⚔️', label: 'Héroe', title: 'EL\nHÉROE', qualifies: true, color: '#FFD600',
-    subtitle: 'Naciste para superar límites',
-    desc: 'No huyes del desafío — lo buscas. Tu motor es la superación. Cuando otros se detienen, tú arrancas. El problema es que a veces confundes el esfuerzo con el progreso.',
-    insight: 'Las personas con tu arquetipo logran resultados extraordinarios cuando encuentran el vehículo correcto. La energía está. El siguiente paso es dirigirla bien.'
-  },
-  gobernante: {
-    emoji: '👑', label: 'Gobernante', title: 'EL\nGOBERNANTE', qualifies: false, color: '#FFD600',
-    subtitle: 'Ves el tablero completo',
-    desc: 'Piensas en sistemas, no en pasos. Quieres control y estructura porque sabes que sin ellos, nada escala. Tu reto es soltar el control cuando el equipo lo requiere.',
-    insight: 'El Gobernante construye imperios cuando aprende a delegar. Tu visión es tu mayor activo — asegúrate de que el vehículo que eliges la pueda sostener.'
-  },
-  sabio: {
-    emoji: '🔮', label: 'Sabio', title: 'EL\nSABIO', qualifies: true, color: '#FFD600',
-    subtitle: 'Tu mayor activo es la claridad',
-    desc: 'Antes de actuar, entiendes. Eso te hace lento a veces, pero rara vez te equivocas dos veces en lo mismo. Tu propósito va más allá del dinero — buscas impacto real.',
-    insight: 'El Sabio transforma comunidades cuando encuentra la plataforma correcta. Tu capacidad de enseñar y guiar es exactamente lo que este modelo necesita.'
-  },
-  explorador: {
-    emoji: '🧭', label: 'Explorador', title: 'EL\nEXPLORADOR', qualifies: true, color: '#FFD600',
-    subtitle: 'La libertad es tu combustible',
-    desc: 'No trabajas para acumular — trabajas para vivir. La autonomía no es un lujo para ti, es una necesidad. Cuando algo te encadena, pierdes energía aunque ganes dinero.',
-    insight: 'El Explorador prospera en modelos donde la geografía y el tiempo dejan de ser obstáculos. Lo que ofreces puede ser construido desde cualquier lugar.'
-  },
-  rebelde: {
-    emoji: '🔥', label: 'Rebelde', title: 'EL\nREBELDE', qualifies: true, color: '#FFD600',
-    subtitle: 'Desafías el sistema porque lo entiendes mejor que nadie',
-    desc: 'No rompes reglas por capricho — las rompes porque ves sus limitaciones. Tu energía es disruptiva y eso incomoda a quienes prefieren el statu quo. Pero cuando esa energía tiene dirección, construyes cosas que otros no se atreven a intentar.',
-    insight: 'El Rebelde prospera cuando encuentra una causa que vale la pena defender. Lo que ofrezco no es un sistema rígido — es un vehículo que se adapta a quienes piensan diferente.'
-  },
-  creador: {
-    emoji: '🌱', label: 'Creador', title: 'EL\nCREADOR', qualifies: true, color: '#FFD600',
-    subtitle: 'Construyes desde cero lo que otros no ven todavía',
-    desc: 'Tienes visión a largo plazo y la paciencia para ejecutarla. No buscas atajos — buscas construir algo que dure. Tu mayor riesgo es quedarte en la planificación sin dar el primer paso.',
-    insight: 'El Creador necesita el vehículo correcto para materializar su visión. Lo que ofrezco es una estructura probada para construir sobre ella — no desde cero.'
-  },
-  aliado: {
-    emoji: '🤝', label: 'Aliado', title: 'EL\nALIADO', qualifies: true, color: '#FFD600',
-    subtitle: 'Tu mayor poder es hacer crecer a otros',
-    desc: 'Lideras desde el servicio. No necesitas el protagonismo — necesitas ver a tu equipo ganar. Eso no es debilidad, es el tipo de liderazgo más escaso y más poderoso que existe.',
-    insight: 'El modelo de red fue diseñado para personas como tú. Cuando el Aliado encuentra su tribu, multiplica resultados que el Héroe solo nunca alcanzaría.'
-  },
-  espectador: {
-    emoji: '😴', label: 'Espectador', title: 'EL\nESPECTADOR', qualifies: false, color: '#6b6b80',
-    subtitle: 'Observas la vida desde la barrera',
-    desc: 'Tienes curiosidad pero no urgencia. Ves oportunidades, las evalúas, y sigues esperando el momento perfecto. El problema es que ese momento nunca llega solo.',
-    insight: 'La vida no premia a los que esperan — premia a los que actúan con información imperfecta. Cuando estés listo para moverte, el camino existe.'
-  },
-  esceptico: {
-    emoji: '🎭', label: 'Escéptico', title: 'EL\nESCÉPTICO', qualifies: false, color: '#6b6b80',
-    subtitle: 'Analizas todo pero no mueves nada',
-    desc: 'Tienes una mente crítica y eso tiene valor. Pero el análisis sin acción es solo ruido mental. Usas las preguntas como escudo para no tener que decidir.',
-    insight: 'El escepticismo protege del error, pero también bloquea el progreso. Cuando encuentres algo que supere tu filtro crítico, lo sabrás. Ese día, escríbeme.'
-  },
-  huerfano: {
-    emoji: '🌑', label: 'Huérfano', title: 'EL\nHUÉRFANO', qualifies: false, color: '#6b6b80',
-    subtitle: 'Buscas seguridad antes que crecimiento',
-    desc: 'No es debilidad — es una etapa. El Huérfano necesita estabilidad antes de poder construir. El problema es cuando esa búsqueda de seguridad se convierte en el techo.',
-    insight: 'Antes de dar el siguiente paso, hay trabajo interno que hacer. Cuando estés listo para moverte desde la decisión y no desde el miedo, el camino existe.'
-  }
-};
-
-const SCORED = ['heroe', 'gobernante', 'sabio', 'explorador', 'rebelde', 'creador', 'aliado', 'espectador', 'esceptico'];
-const s = (...v) => Object.fromEntries(SCORED.map((k, i) => [k, v[i]]));
-
-const QUESTIONS = [
-  {
-    title: 'LLEVAS MESES HACIENDO LO MISMO.',
-    sub: 'Los resultados no cambian. ¿Qué haces?',
-    options: [
-      { emoji: '🔄', text: 'Busco qué estoy haciendo mal y cambio el enfoque', sub: 'El error me da información', score: s(3,1,1,1,2,1,0,0,0) },
-      { emoji: '🧱', text: 'Sigo adelante, los resultados llegan con consistencia', sub: 'La disciplina por encima de todo', score: s(1,2,0,0,0,1,1,1,0) },
-      { emoji: '🔍', text: 'Busco a alguien que ya lo haya resuelto y aprendo de él', sub: 'No reinvento lo que ya funciona', score: s(1,1,3,1,0,2,2,0,1) },
-      { emoji: '😔', text: 'Me cuesta seguir, necesito ver alguna señal para continuar', sub: 'Sin resultados, pierdo la motivación', score: s(0,0,0,0,0,0,0,3,2) }
-    ]
-  },
-  {
-    title: 'TU INGRESO DESAPARECE MAÑANA.',
-    sub: 'Una sola fuente. Se acaba. ¿Cuál es tu primer movimiento?',
-    options: [
-      { emoji: '📲', text: 'Activo mis contactos y busco una solución inmediata', sub: 'La red es el activo más rápido', score: s(3,1,0,1,2,1,1,0,0) },
-      { emoji: '📋', text: 'Analizo mis opciones antes de moverme', sub: 'Una decisión rápida puede ser una mala decisión', score: s(0,2,3,0,0,1,2,1,2) },
-      { emoji: '🏗️', text: 'Busco crear algo que no dependa de nadie', sub: 'Este momento me obliga a construir bien', score: s(1,1,0,3,2,3,0,0,0) },
-      { emoji: '🫥', text: 'Me paralizo, no sé por dónde empezar', sub: 'El pánico llega antes que el plan', score: s(0,0,0,0,0,0,0,3,1) }
-    ]
-  },
-  {
-    title: 'ALGUIEN CON MÁS EXPERIENCIA TE DICE QUE NO VA A FUNCIONAR.',
-    sub: 'Tu idea. Su criterio. ¿Qué haces?',
-    options: [
-      { emoji: '👂', text: 'Escucho, evalúo y decido por mi cuenta', sub: 'La opinión es dato, no sentencia', score: s(1,3,2,1,1,1,3,0,0) },
-      { emoji: '💪', text: 'Lo tomo como un reto y lo demuestro con hechos', sub: 'El escepticismo ajeno me activa', score: s(3,1,0,2,3,1,0,0,0) },
-      { emoji: '🤔', text: 'Pregunto por qué y busco mejorar la idea', sub: 'Puede tener un punto que no vi', score: s(1,1,2,1,1,2,2,0,2) },
-      { emoji: '😟', text: 'Me genera duda y lo reconsidero todo', sub: 'Una voz con autoridad me desestabiliza', score: s(0,0,0,0,0,0,0,1,3) }
-    ]
-  },
-  {
-    title: 'TIENES QUE TOMAR UNA DECISIÓN IMPORTANTE.',
-    sub: 'Sin información suficiente. ¿Cómo actúas?',
-    options: [
-      { emoji: '⚡', text: 'Decido con lo que tengo y corrijo en el camino', sub: 'La acción genera más información que la espera', score: s(3,1,0,2,2,2,1,0,0) },
-      { emoji: '🔍', text: 'Busco más información antes de moverme', sub: 'Una decisión con más datos es una mejor decisión', score: s(0,2,3,0,0,1,2,1,2) },
-      { emoji: '🔥', text: 'Confío en mi instinto, los datos son secundarios', sub: 'El análisis paraliza, el instinto libera', score: s(2,0,0,3,3,2,1,0,0) },
-      { emoji: '⏳', text: 'Me bloqueo, prefiero esperar a tener más claridad', sub: 'Sin certeza no me muevo', score: s(0,0,0,0,0,0,0,3,3) }
-    ]
-  },
-  {
-    title: 'ANTES DE DORMIR.',
-    sub: '¿Qué aparece primero en tu cabeza?',
-    options: [
-      { emoji: '🔧', text: 'Lo que tengo que mejorar mañana', sub: 'Siempre hay algo que optimizar', score: s(3,2,2,0,2,2,0,0,0) },
-      { emoji: '🏛️', text: 'Lo que construí hoy y hacia dónde voy', sub: 'El progreso acumulado me da dirección', score: s(1,2,1,0,0,3,1,1,0) },
-      { emoji: '🌍', text: 'Las personas que podría impactar con lo que hago', sub: 'El propósito es lo que me sostiene', score: s(1,2,2,2,1,2,3,0,0) },
-      { emoji: '🌀', text: 'Lo que salió mal, me cuesta soltar el pensamiento', sub: 'La mente se queda atrapada en los errores', score: s(0,0,0,0,0,0,0,3,2) }
-    ]
-  },
-  {
-    title: 'YA SABES LO QUE TIENES QUE HACER.',
-    sub: '¿Por qué no lo has hecho?',
-    options: [
-      { emoji: '🔒', text: 'Porque perder lo que tengo me asusta más que ganar lo que quiero', sub: 'La seguridad pesa más que el deseo', score: s(0,1,0,0,0,0,0,3,2) },
-      { emoji: '👥', text: 'Porque nadie a mi alrededor lo ha hecho y no sé si es posible', sub: 'El entorno define el techo', score: s(0,0,0,1,1,0,0,2,3) },
-      { emoji: '⏳', text: 'Porque sigo esperando el momento perfecto', sub: 'Cuando todo esté listo, arranco', score: s(0,1,1,0,0,1,1,3,3) },
-      { emoji: '⚡', text: 'Lo tengo claro y lo estoy haciendo', sub: 'La acción ya empezó', score: s(3,2,2,2,3,3,3,0,0) }
-    ]
-  },
-  {
-    title: '¿CÓMO DESCRIBES TU RELACIÓN CON EL DINERO?',
-    sub: 'En este momento. Sin filtros.',
-    options: [
-      { emoji: '🏗️', text: 'Es una herramienta, la uso para construir más', sub: 'El dinero es medio, no fin', score: s(1,3,1,1,1,3,1,0,0) },
-      { emoji: '🤲', text: 'Lo comparto fácil, me cuesta acumularlo para mí', sub: 'Me mueve más dar que tener', score: s(0,0,2,1,0,1,3,1,0) },
-      { emoji: '🔒', text: 'Me da seguridad pero no me mueve', sub: 'Lo necesito para no preocuparme, no para crecer', score: s(0,1,0,0,0,0,0,3,2) },
-      { emoji: '🚀', text: 'Quiero que trabaje por mí, no al revés', sub: 'El objetivo es la libertad financiera', score: s(2,1,1,3,2,2,2,0,0) }
-    ]
-  }
-];
-
-let currentQ = 0;
-let answers = [];
-
-const \$ = id => document.getElementById(id);
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-  const el = \$(id);
-  if (el) {
-    el.style.animation = 'none';
-    void el.offsetHeight;
-    el.style.animation = '';
-    el.classList.add('active');
-  }
-  window.scrollTo(0, 0);
-}
-
-function calculateScores() {
-  const scores = Object.fromEntries(SCORED.map(k => [k, 0]));
-  answers.forEach((optIndex, qIndex) => {
-    const opt = QUESTIONS[qIndex].options[optIndex];
-    SCORED.forEach(k => { scores[k] += opt.score[k]; });
-  });
-  return scores;
-}
-
-function getDominant(scores) {
-  const total = Object.values(scores).reduce((a, b) => a + b, 0);
-  if (total < CONFIG.minTotalScore) return 'huerfano';
-  return Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
-}
-
-function startQuiz() {
-  currentQ = 0;
-  answers = [];
-  showScreen('screen-quiz');
-  renderQuestion();
-}
-
-function renderQuestion() {
-  const q = QUESTIONS[currentQ];
-  const selected = answers[currentQ];
-  const isLast = currentQ === QUESTIONS.length - 1;
-
-  if ($('progress-count'))$('progress-count').textContent = `${currentQ + 1} / ${QUESTIONS.length}`;
-  if ($('progress-bar'))$('progress-bar').style.width = `${((currentQ + 1) / QUESTIONS.length) * 100}%`;
-  if ($('btn-back'))$('btn-back').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
-  if ($('btn-next')) {$('btn-next').textContent = isLast ? 'VER MI RESULTADO →' : 'SIGUIENTE →';
-    \$('btn-next').classList.toggle('active', selected !== undefined);
-  }
-
-  const container = \$('question-container');
-  if (container) {
-    container.innerHTML = `
-      <div class="question-num">PREGUNTA 0${currentQ + 1}</div>
-      <h2 class="question-title">${q.title}</h2>
-      <p class="question-sub">${q.sub}</p>
-      <div class="options-grid">
-        ${q.options.map((opt, i) => `
-          <div class="option-card ${selected === i ? 'selected' : ''}" data-index="${i}">
-            <span class="option-emoji">\${opt.emoji}</span>
-            <div class="option-text">\${opt.text}</div>
-            <div class="option-sub">\${opt.sub}</div>
-          </div>
-        `).join('')}
-      </div>
-    `;
-
-    document.querySelectorAll('.option-card').forEach(card => {
-      card.addEventListener('click', () => {
-        selectOption(parseInt(card.getAttribute('data-index')));
-      });
-    });
-  }
-}
-
-function selectOption(index) {
-  answers[currentQ] = index;
-  document.querySelectorAll('.option-card').forEach((card, i) => {
-    card.classList.toggle('selected', i === index);
-  });
-  if ($('btn-next'))$('btn-next').classList.add('active');
-}
-
-function goNext() {
-  if (answers[currentQ] === undefined) return;
-  if (currentQ < QUESTIONS.length - 1) {
-    currentQ++;
-    renderQuestion();
-  } else {
-    showScreen('screen-form');
-  }
-}
-
-function goBack() {
-  if (currentQ === 0) return;
-  currentQ--;
-  renderQuestion();
-}
-
-function renderBars(scores) {
-  const max = Math.max(...Object.values(scores)) || 1;
-  const light = ['gobernante', 'explorador', 'creador'];
-  const grey = ['espectador', 'esceptico'];
-  const colorFor = k => grey.includes(k) ? '#6b6b80' : light.includes(k) ? '#FFF176' : '#FFD600';
-
-  return Object.entries(scores)
-    .sort((a, b) => b[1] - a[1])
-    .map(([k, v], i) => `
-      <div class="score-bar-row">
-        <span class="score-bar-label">${ARCHETYPES[k].label}</span>
-        <div class="score-bar-track">
-          <div class="score-bar-fill" style="width:${Math.max(8, (v / max) * 100)}%; background:${colorFor(k)}; --delay:${i * 0.15}s;"></div>
-        </div>
-      </div>
-    `).join('');
-}
-
-function renderCta(res) {
-  if (!res.qualifies) {
-    return `
-      <div class="no-contact-msg">
-        <strong>Este no es tu momento.</strong>
-        Lo que ofrezco es para personas que ya tomaron la decisión de moverse. Cuando llegues ahí, sabrás dónde encontrarme.
-      </div>`;
-  }
-  return `
-    <div class="result-cta">
-      <div class="result-cta-title">Anastasia quiere conocerte</div>
-      <p class="result-cta-text">"Para. Deja de scrollear. Deja de pensar. Esto es exactamente lo que buscabas y lo sabes. Escríbeme."</p>
-      <button class="btn-whatsapp" id="btn-whatsapp">📱 ESCRIBIR A ANASTASIA</button><br>
-      <button class="btn-instagram" id="btn-instagram">Prefiero escribirte por Instagram →</button>
-    </div>`;
-}
-
-function showResult() {
-  const nameInput = \$('input-name');
-  const instaInput = \$('input-instagram');
-  const name = nameInput ? nameInput.value.trim() || 'Emprendedora' : 'Emprendedora';
-  const instagram = instaInput ? instaInput.value.trim() || 'No indicado' : 'No indicado';
-  
-  const scores = calculateScores();
-  const dominantKey = getDominant(scores);
-  const res = ARCHETYPES[dominantKey];
-
-  if (window.emailjs) {
-    emailjs.send(CONFIG.emailjs.service, CONFIG.emailjs.template, {
-      to_email: CONFIG.emailTo,
-      to_name: 'Anastasia',
-      user_name: name,
-      user_instagram: instagram,
-      archetype: res.label,
-      scores: JSON.stringify(scores)
-    }).catch(err => console.error('Error emailjs:', err));
-  }
-
-  const content = \$('result-content');
-  if (content) {
-    content.innerHTML = `
-      <span class="result-badge">RESULTADO OFICIAL</span>
-      <span class="result-emoji">${res.emoji}</span>
-      <h1 class="result-title">${res.title}</h1>
-      <p class="result-subtitle">${res.subtitle}</p>
-      <p class="result-desc">${res.desc}</p>
-      
-      <div class="score-bars">
-        ${renderBars(scores)}
-      </div>
-
-      <div class="result-insight">
-        <div class="result-insight-label">ANÁLISIS DE ANASTASIA IAMACHKINE</div>
-        <p class="result-insight-text">${res.insight}</p>
-      </div>
-
-      ${renderCta(res)}
-
-      <button class="btn-retry" id="btn-retry">← Repetir el test</button>
-    `;
-  }
-
-  showScreen('screen-result');
-
-  const btnWa = \$('btn-whatsapp');
-  if (btnWa) {
-    btnWa.addEventListener('click', () => {
-      const msg = encodeURIComponent(`Hola Anastasia, soy ${name} (${instagram}). Hice tu test de liderazgo y mi arquetipo es ${res.label}. Quiero conversar contigo.`);
-      window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`, '_blank');
-    });
-  }
-
-  const btnIg = \$('btn-instagram');
-  if (btnIg) {
-    btnIg.addEventListener('click', () => {
-      window.open(CONFIG.instagram, '_blank');
-    });
-  }
-
-  const btnRetry = \$('btn-retry');
-  if (btnRetry) {
-    btnRetry.addEventListener('click', () => {
-      showScreen('screen-intro');
-    });
-  }
-}
-
-// Inicialización directa y segura de los eventos de los botones principales
-window.addEventListener('DOMContentLoaded', () => {
-  const btnStart = \$('btn-start');
-  if (btnStart) {
-    btnStart.addEventListener('click', startQuiz);
-  }
-
-  const btnNext = \$('btn-next');
-  if (btnNext) {
-    btnNext.addEventListener('click', goNext);
-  }
-
-  const btnBack = \$('btn-back');
-  if (btnBack) {
-    btnBack.addEventListener('click', goBack);
-  }
-
-  const btnSubmit = \$('btn-submit');
-  if (btnSubmit) {
-    btnSubmit.addEventListener('click', () => {
-      const nameVal = $('input-name') ?$('input-name').value.trim() : '';
-      if (!nameVal) {
-        alert('Por favor, introduce tu nombre.');
-        return;
-      }
-      showResult();
-    });
-  }
-});
+  emailjs.init("Fj3IkXRi9NvF9LxGY");
 </script>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --accent: #FFD600;
+    --accent2: #FFF176;
+    --text: #f0f0f0;
+    --muted: #6b6b6b;
+    --body-text: #c0c0d0;
+  }
 
-```
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-Actualiza tu archivo en GitHub con este código reestructurado y comprueba de nuevo. ¡Ahora el botón amarillo responderá de inmediato al primer clic!
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Pantallas */
+  .screen { display: none; animation: fadeUp 0.5s ease forwards; }
+  .screen.active { display: block; }
+  #screen-intro.active { display: flex; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Intro */
+  #screen-intro {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 60px 24px;
+  }
+
+  .intro-author-box {
+    margin-bottom: 24px;
+  }
+
+  .intro-author-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+
+  .intro-author-role {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .intro-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 12vw, 96px);
+    line-height: 0.9;
+    letter-spacing: -1px;
+    margin-bottom: 24px;
+  }
+
+  .intro-title .highlight { color: var(--accent); }
+
+  .intro-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    display: inline-block;
+    padding: 6px 14px;
+    margin-bottom: 32px;
+  }
+
+  .intro-bio {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--body-text);
+    margin-bottom: 36px;
+    max-width: 560px;
+  }
+
+  .intro-bio p { margin-bottom: 12px; }
+  .intro-bio p:last-child { margin-bottom: 0; color: var(--text); font-weight: 600; }
+
+  .intro-sub {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 480px;
+    margin-bottom: 48px;
+    line-height: 1.6;
+  }
+
+  .pill-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+  .pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 8px 16px;
+    border: 1px solid var(--surface2);
+    color: var(--muted);
+    border-radius: 100px;
+  }
+
+  .btn-start {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 18px 48px;
+    margin-bottom: 40px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: all 0.2s;
+  }
+
+  .btn-start:hover { background: var(--accent2); transform: translateY(-2px); }
+
+  /* Quiz */
+  .progress-wrap { padding: 48px 0 32px; }
+  .progress-meta { display: flex; justify-content: space-between; margin-bottom: 10px; }
+
+  .progress-label,
+  .progress-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+
+  .progress-label { color: var(--muted); text-transform: uppercase; }
+  .progress-count { color: var(--accent); }
+  .progress-bar-bg { height: 2px; background: var(--surface2); }
+
+  .progress-bar-fill {
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.5s ease;
+  }
+
+  .question-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .question-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 8vw, 64px);
+    line-height: 0.95;
+    margin-bottom: 12px;
+  }
+
+  .question-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .option-card {
+    background: var(--surface);
+    border: 1px solid var(--surface2);
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+    transform: scaleY(0);
+    transition: transform 0.2s;
+  }
+
+  .option-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .option-card:hover::before,
+  .option-card.selected::before { transform: scaleY(1); }
+  .option-card.selected { border-color: var(--accent); background: rgba(255, 214, 0, 0.08); }
+
+  .option-emoji { font-size: 28px; margin-bottom: 12px; display: block; }
+  .option-text { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 6px; }
+  .option-sub { font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.4; color: var(--muted); }
+
+  .nav-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 48px; }
+
+  .btn-back {
+    background: transparent;
+    border: 1px solid var(--surface2);
+    color: var(--muted);
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-back:hover { border-color: var(--muted); color: var(--text); }
+
+  .btn-next {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 14px 32px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .btn-next.active { opacity: 1; pointer-events: all; }
+  .btn-next.active:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  /* Formulario */
+  .form-screen { padding: 48px 0; }
+
+  .form-tag {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .form-title { font-family: 'Bebas Neue', sans-serif; font-size: 48px; margin-bottom: 8px; }
+  .form-sub { font-size: 15px; color: var(--muted); margin-bottom: 40px; }
+  .form-group { margin-bottom: 24px; }
+
+  .form-label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .form-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--surface2);
+    color: var(--text);
+    padding: 16px 20px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--muted); }
+
+  .btn-submit {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 18px 48px;
+    margin-top: 8px;
+    width: 100%;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-submit:hover { background: var(--accent2); transform: translateY(-2px); }
+
+  .privacy-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  /* Resultado */
+  .result-screen { padding-top: 48px; }
+
+  .result-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    margin-bottom: 24px;
+  }
+
+  .result-emoji {
+    display: block;
+    font-size: 72px;
+    margin-bottom: 16px;
+    animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+
+  .result-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 80px);
+    line-height: 0.9;
+    margin-bottom: 16px;
+  }
+
+  .result-subtitle { font-size: 18px; font-weight: 600; color: var(--muted); margin-bottom: 24px; }
+  .result-desc { font-size: 16px; line-height: 1.7; color: var(--body-text); margin-bottom: 32px; }
+
+  .score-bars { margin-bottom: 40px; }
+  .score-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+
+  .score-bar-label {
+    width: 90px;
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+
+  .score-bar-track { flex: 1; height: 4px; background: var(--surface2); }
+  .score-bar-fill { height: 4px; border-radius: 2px; animation: barGrow 0.8s ease var(--delay, 0s) both; }
+  @keyframes barGrow { from { width: 0 !important; } }
+
+  .result-insight {
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    padding: 24px;
+    margin-bottom: 40px;
+  }
+
+  .result-insight-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .result-insight-text { font-size: 15px; line-height: 1.7; color: var(--body-text); }
+
+  .result-cta { border: 1px solid var(--accent); padding: 32px; margin-bottom: 24px; text-align: center; }
+  .result-cta-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--accent); margin-bottom: 16px; }
+  .result-cta-text { font-size: 16px; line-height: 1.7; color: var(--body-text); margin-bottom: 24px; }
+
+  .btn-whatsapp {
+    display: block;
+    width: 100%;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    padding: 16px 32px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-whatsapp:hover { background: #1da851; transform: translateY(-1px); }
+
+  .btn-instagram {
+    display: inline-block;
+    margin-top: 12px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--surface2);
+    padding: 10px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
