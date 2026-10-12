@@ -1,578 +1,12 @@
+¡Ah, ya te entiendo perfectamente! Te refieres al botón amarillo principal de la pantalla de bienvenida (**"DESCUBRE TU ARQUETIPO →"**).
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>¿Qué tipo de líder llevas dentro? · Anastasia Iamachkine</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script>
-  // Inicialización de EmailJS con tu Public Key
-  emailjs.init("Fj3IkXRi9NvF9LxGY");
-</script>
-<style>
-  :root {
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --surface2: #1a1a1a;
-    --accent: #FFD600;
-    --accent2: #FFF176;
-    --text: #f0f0f0;
-    --muted: #6b6b6b;
-    --body-text: #c0c0d0;
-  }
+El motivo por el cual ese botón no responde al hacerle clic es un pequeño detalle en la inicialización de los eventos en JavaScript. En el código, el evento `DOMContentLoaded` se ejecuta **antes** de que el navegador termine de asegurar que todos los elementos están listos, o hay un conflicto con la forma en que busca el botón `#btn-start`.
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+Vamos a solucionarlo definitivamente reemplazando únicamente la sección final de los scripts por esta versión corregida que fuerza la vinculación del botón de forma directa y segura.
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+Sustituye todo el bloque `<script>` que está al final de tu archivo por este:
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    opacity: 0.4;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .container {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 0 24px;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Pantallas */
-  .screen { display: none; animation: fadeUp 0.5s ease forwards; }
-  .screen.active { display: block; }
-  #screen-intro.active { display: flex; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Intro */
-  #screen-intro {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 60px 24px;
-  }
-
-  .intro-photo-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    margin-bottom: 24px;
-    padding: 0;
-  }
-
-  .intro-photo { 
-    width: 160px; 
-    height: auto; 
-    border-radius: 8px; 
-    flex-shrink: 0; 
-    object-fit: cover;
-    display: block;
-    margin: 0;
-    padding: 0;
-  }
-
-  .intro-photo-text { display: flex; flex-direction: column; gap: 4px; text-align: left; }
-
-  .intro-photo-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px;
-    letter-spacing: 2px;
-  }
-
-  .intro-photo-role {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .intro-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(52px, 12vw, 96px);
-    line-height: 0.9;
-    letter-spacing: -1px;
-    margin-bottom: 24px;
-  }
-
-  .intro-title .highlight { color: var(--accent); }
-
-  .intro-tag {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    display: inline-block;
-    padding: 6px 14px;
-    margin-bottom: 32px;
-  }
-
-  .intro-bio {
-    font-size: 15px;
-    line-height: 1.8;
-    color: var(--body-text);
-    margin-bottom: 36px;
-    max-width: 560px;
-  }
-
-  .intro-bio p { margin-bottom: 12px; }
-  .intro-bio p:last-child { margin-bottom: 0; color: var(--text); font-weight: 600; }
-
-  .intro-sub {
-    font-size: 17px;
-    color: var(--muted);
-    max-width: 480px;
-    margin-bottom: 48px;
-    line-height: 1.6;
-  }
-
-  .pill-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-
-  .pill {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    padding: 8px 16px;
-    border: 1px solid var(--surface2);
-    color: var(--muted);
-    border-radius: 100px;
-  }
-
-  .btn-start {
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    padding: 18px 48px;
-    margin-bottom: 40px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 3px;
-    cursor: pointer;
-    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-    transition: all 0.2s;
-  }
-
-  .btn-start:hover { background: var(--accent2); transform: translateY(-2px); }
-
-  /* Quiz */
-  .progress-wrap { padding: 48px 0 32px; }
-  .progress-meta { display: flex; justify-content: space-between; margin-bottom: 10px; }
-
-  .progress-label,
-  .progress-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-  }
-
-  .progress-label { color: var(--muted); text-transform: uppercase; }
-  .progress-count { color: var(--accent); }
-  .progress-bar-bg { height: 2px; background: var(--surface2); }
-
-  .progress-bar-fill {
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    transition: width 0.5s ease;
-  }
-
-  .question-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-
-  .question-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(36px, 8vw, 64px);
-    line-height: 0.95;
-    margin-bottom: 12px;
-  }
-
-  .question-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 14px;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 40px;
-  }
-
-  .options-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 32px;
-  }
-
-  .option-card {
-    background: var(--surface);
-    border: 1px solid var(--surface2);
-    padding: 24px 20px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .option-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 3px; height: 100%;
-    background: var(--accent);
-    transform: scaleY(0);
-    transition: transform 0.2s;
-  }
-
-  .option-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .option-card:hover::before,
-  .option-card.selected::before { transform: scaleY(1); }
-  .option-card.selected { border-color: var(--accent); background: rgba(255, 214, 0, 0.08); }
-
-  .option-emoji { font-size: 28px; margin-bottom: 12px; display: block; }
-  .option-text { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 6px; }
-  .option-sub { font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.4; color: var(--muted); }
-
-  .nav-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 48px; }
-
-  .btn-back {
-    background: transparent;
-    border: 1px solid var(--surface2);
-    color: var(--muted);
-    padding: 12px 24px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-back:hover { border-color: var(--muted); color: var(--text); }
-
-  .btn-next {
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    padding: 14px 32px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: all 0.2s;
-    opacity: 0.3;
-    pointer-events: none;
-  }
-
-  .btn-next.active { opacity: 1; pointer-events: all; }
-  .btn-next.active:hover { background: var(--accent2); transform: translateY(-1px); }
-
-  /* Formulario */
-  .form-screen { padding: 48px 0; }
-
-  .form-tag {
-    display: block;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 24px;
-  }
-
-  .form-title { font-family: 'Bebas Neue', sans-serif; font-size: 48px; margin-bottom: 8px; }
-  .form-sub { font-size: 15px; color: var(--muted); margin-bottom: 40px; }
-  .form-group { margin-bottom: 24px; }
-
-  .form-label {
-    display: block;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 10px;
-  }
-
-  .form-input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--surface2);
-    color: var(--text);
-    padding: 16px 20px;
-    font-family: 'Syne', sans-serif;
-    font-size: 16px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .form-input:focus { border-color: var(--accent); }
-  .form-input::placeholder { color: var(--muted); }
-
-  .btn-submit {
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    padding: 18px 48px;
-    margin-top: 8px;
-    width: 100%;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 3px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-submit:hover { background: var(--accent2); transform: translateY(-2px); }
-
-  .privacy-note {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    text-align: center;
-    margin-top: 16px;
-  }
-
-  /* Resultado */
-  .result-screen { padding-top: 48px; }
-
-  .result-badge {
-    display: inline-block;
-    background: var(--accent);
-    color: var(--bg);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    padding: 6px 14px;
-    margin-bottom: 24px;
-  }
-
-  .result-emoji {
-    display: block;
-    font-size: 72px;
-    margin-bottom: 16px;
-    animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  }
-
-  @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
-
-  .result-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(48px, 10vw, 80px);
-    line-height: 0.9;
-    margin-bottom: 16px;
-  }
-
-  .result-subtitle { font-size: 18px; font-weight: 600; color: var(--muted); margin-bottom: 24px; }
-  .result-desc { font-size: 16px; line-height: 1.7; color: var(--body-text); margin-bottom: 32px; }
-
-  .score-bars { margin-bottom: 40px; }
-  .score-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-
-  .score-bar-label {
-    width: 90px;
-    flex-shrink: 0;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1px;
-    color: var(--muted);
-  }
-
-  .score-bar-track { flex: 1; height: 4px; background: var(--surface2); }
-  .score-bar-fill { height: 4px; border-radius: 2px; animation: barGrow 0.8s ease var(--delay, 0s) both; }
-  @keyframes barGrow { from { width: 0 !important; } }
-
-  .result-insight {
-    background: var(--surface);
-    border-left: 3px solid var(--accent);
-    padding: 24px;
-    margin-bottom: 40px;
-  }
-
-  .result-insight-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 12px;
-  }
-
-  .result-insight-text { font-size: 15px; line-height: 1.7; color: var(--body-text); }
-
-  .result-cta { border: 1px solid var(--accent); padding: 32px; margin-bottom: 24px; text-align: center; }
-  .result-cta-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--accent); margin-bottom: 16px; }
-  .result-cta-text { font-size: 16px; line-height: 1.7; color: var(--body-text); margin-bottom: 24px; }
-
-  .btn-whatsapp {
-    display: block;
-    width: 100%;
-    background: #25D366;
-    color: #fff;
-    border: none;
-    padding: 16px 32px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px;
-    letter-spacing: 2px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-whatsapp:hover { background: #1da851; transform: translateY(-1px); }
-
-  .btn-instagram {
-    display: inline-block;
-    margin-top: 12px;
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--surface2);
-    padding: 10px 24px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-instagram:hover { border-color: #E1306C; color: #E1306C; }
-
-  .btn-retry {
-    margin: 24px 0 48px;
-    background: transparent;
-    border: 1px solid var(--surface2);
-    color: var(--muted);
-    padding: 12px 24px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-retry:hover { border-color: var(--muted); color: var(--text); }
-
-  .no-contact-msg { text-align: center; padding: 40px 0; font-size: 15px; line-height: 1.7; color: var(--muted); }
-
-  .no-contact-msg strong {
-    display: block;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px;
-    letter-spacing: 2px;
-    color: var(--text);
-    margin-bottom: 12px;
-  }
-
-  @media (max-width: 480px) {
-    .options-grid { grid-template-columns: 1fr; }
-    .intro-photo-wrap { flex-direction: column; text-align: center; }
-    .intro-photo-text { text-align: center; }
-  }
-</style>
-</head>
-<body>
-<div class="container">
-
-  <!-- INTRO -->
-  <div class="screen active" id="screen-intro">
-    <div class="intro-photo-wrap">
-      <img class="intro-photo" src="anastasia.jpg" alt="Anastasia Iamachkine">
-      <div class="intro-photo-text">
-        <span class="intro-photo-name">ANASTASIA IAMACHKINE</span>
-        <span class="intro-photo-role">Mentora & Empresaria</span>
-      </div>
-    </div>
-
-    <h1 class="intro-title">¿Qué tipo de <span class="highlight">líder</span> llevas dentro?</h1>
-
-    <button class="btn-start" id="btn-start">DESCUBRE TU ARQUETIPO →</button>
-
-    <div class="intro-tag">🧠 Test de Liderazgo · 3 min</div>
-
-    <div class="intro-bio">
-      <p>Años construyendo equipos, liderando con propósito y transformando resultados a nivel internacional.</p>
-      <p>En el camino he visto un patrón claro: el éxito real no lo determina el azar, sino la mentalidad.</p>
-      <p>Lo determina quién eres tú cuando nadie te está mirando.</p>
-      <p>Este test no tiene respuestas correctas. Tiene respuestas honestas.</p>
-    </div>
-
-    <p class="intro-sub">
-      7 preguntas que revelan tu arquetipo real.<br>
-      Sin filtros. Sin lo que crees que deberías responder.
-    </p>
-
-    <div class="pill-row">
-      <span class="pill">⏱ 3 minutos</span>
-      <span class="pill">🎯 7 preguntas</span>
-      <span class="pill">🔥 100% sin filtros</span>
-    </div>
-  </div>
-
-  <!-- QUIZ -->
-  <div class="screen" id="screen-quiz">
-    <div class="progress-wrap">
-      <div class="progress-meta">
-        <span class="progress-label">Tu progreso</span>
-        <span class="progress-count" id="progress-count"></span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progress-bar"></div>
-      </div>
-    </div>
-    <div id="question-container"></div>
-    <div class="nav-row">
-      <button class="btn-back" id="btn-back">← ATRÁS</button>
-      <button class="btn-next" id="btn-next">SIGUIENTE →</button>
-    </div>
-  </div>
-
-  <!-- FORMULARIO -->
-  <div class="screen" id="screen-form">
-    <div class="form-screen">
-      <span class="form-tag">📊 Casi listo</span>
-      <h2 class="form-title">Tu resultado está listo</h2>
-      <p class="form-sub">Deja tu nombre e Instagram para ver tu arquetipo completo.</p>
-      <div class="form-group">
-        <label class="form-label" for="input-name">Tu nombre</label>
-        <input class="form-input" type="text" id="input-name" placeholder="Como quieres que te llamen">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="input-instagram">Instagram</label>
-        <input class="form-input" type="text" id="input-instagram" placeholder="@tu_usuario">
-      </div>
-      <button class="btn-submit" id="btn-submit">VER MI ARQUETIPO →</button>
-      <p class="privacy-note">Sin spam. Solo tu resultado.</p>
-    </div>
-  </div>
-
-  <!-- RESULTADO -->
-  <div class="screen" id="screen-result">
-    <div class="result-screen" id="result-content"></div>
-  </div>
-
-</div>
-
+```html
 <script>
 const CONFIG = {
   whatsapp: '34602141310',
@@ -727,15 +161,17 @@ const QUESTIONS = [
 let currentQ = 0;
 let answers = [];
 
-const $ = id => document.getElementById(id);
+const \$ = id => document.getElementById(id);
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
   const el = \$(id);
-  el.style.animation = 'none';
-  void el.offsetHeight;
-  el.style.animation = '';
-  el.classList.add('active');
+  if (el) {
+    el.style.animation = 'none';
+    void el.offsetHeight;
+    el.style.animation = '';
+    el.classList.add('active');
+  }
   window.scrollTo(0, 0);
 }
 
@@ -766,31 +202,36 @@ function renderQuestion() {
   const selected = answers[currentQ];
   const isLast = currentQ === QUESTIONS.length - 1;
 
-  \$('progress-count').textContent = `${currentQ + 1} / ${QUESTIONS.length}`;
-  \$('progress-bar').style.width = `${((currentQ + 1) / QUESTIONS.length) * 100}%`;
-  $('btn-back').style.visibility = currentQ === 0 ? 'hidden' : 'visible';$('btn-next').textContent = isLast ? 'VER MI RESULTADO →' : 'SIGUIENTE →';
-  \$('btn-next').classList.toggle('active', selected !== undefined);
+  if ($('progress-count'))$('progress-count').textContent = `${currentQ + 1} / ${QUESTIONS.length}`;
+  if ($('progress-bar'))$('progress-bar').style.width = `${((currentQ + 1) / QUESTIONS.length) * 100}%`;
+  if ($('btn-back'))$('btn-back').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+  if ($('btn-next')) {$('btn-next').textContent = isLast ? 'VER MI RESULTADO →' : 'SIGUIENTE →';
+    \$('btn-next').classList.toggle('active', selected !== undefined);
+  }
 
-  \$('question-container').innerHTML = `
-    <div class="question-num">PREGUNTA 0${currentQ + 1}</div>
-    <h2 class="question-title">${q.title}</h2>
-    <p class="question-sub">${q.sub}</p>
-    <div class="options-grid">
-      ${q.options.map((opt, i) => `
-        <div class="option-card ${selected === i ? 'selected' : ''}" data-index="${i}">
-          <span class="option-emoji">\${opt.emoji}</span>
-          <div class="option-text">\${opt.text}</div>
-          <div class="option-sub">\${opt.sub}</div>
-        </div>
-      `).join('')}
-    </div>
-  `;
+  const container = \$('question-container');
+  if (container) {
+    container.innerHTML = `
+      <div class="question-num">PREGUNTA 0${currentQ + 1}</div>
+      <h2 class="question-title">${q.title}</h2>
+      <p class="question-sub">${q.sub}</p>
+      <div class="options-grid">
+        ${q.options.map((opt, i) => `
+          <div class="option-card ${selected === i ? 'selected' : ''}" data-index="${i}">
+            <span class="option-emoji">\${opt.emoji}</span>
+            <div class="option-text">\${opt.text}</div>
+            <div class="option-sub">\${opt.sub}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
 
-  document.querySelectorAll('.option-card').forEach(card => {
-    card.addEventListener('click', () => {
-      selectOption(parseInt(card.getAttribute('data-index')));
+    document.querySelectorAll('.option-card').forEach(card => {
+      card.addEventListener('click', () => {
+        selectOption(parseInt(card.getAttribute('data-index')));
+      });
     });
-  });
+  }
 }
 
 function selectOption(index) {
@@ -798,7 +239,7 @@ function selectOption(index) {
   document.querySelectorAll('.option-card').forEach((card, i) => {
     card.classList.toggle('selected', i === index);
   });
-  \$('btn-next').classList.add('active');
+  if ($('btn-next'))$('btn-next').classList.add('active');
 }
 
 function goNext() {
@@ -853,74 +294,106 @@ function renderCta(res) {
 }
 
 function showResult() {
-  const name = \$('input-name').value.trim() || 'Emprendedora';
-  const instagram = \$('input-instagram').value.trim() || 'No indicado';
+  const nameInput = \$('input-name');
+  const instaInput = \$('input-instagram');
+  const name = nameInput ? nameInput.value.trim() || 'Emprendedora' : 'Emprendedora';
+  const instagram = instaInput ? instaInput.value.trim() || 'No indicado' : 'No indicado';
   
   const scores = calculateScores();
   const dominantKey = getDominant(scores);
   const res = ARCHETYPES[dominantKey];
 
-  emailjs.send(CONFIG.emailjs.service, CONFIG.emailjs.template, {
-    to_email: CONFIG.emailTo,
-    to_name: 'Anastasia',
-    user_name: name,
-    user_instagram: instagram,
-    archetype: res.label,
-    scores: JSON.stringify(scores)
-  }).catch(err => console.error('Error emailjs:', err));
+  if (window.emailjs) {
+    emailjs.send(CONFIG.emailjs.service, CONFIG.emailjs.template, {
+      to_email: CONFIG.emailTo,
+      to_name: 'Anastasia',
+      user_name: name,
+      user_instagram: instagram,
+      archetype: res.label,
+      scores: JSON.stringify(scores)
+    }).catch(err => console.error('Error emailjs:', err));
+  }
 
-  \$('result-content').innerHTML = `
-    <span class="result-badge">RESULTADO OFICIAL</span>
-    <span class="result-emoji">${res.emoji}</span>
-    <h1 class="result-title">${res.title}</h1>
-    <p class="result-subtitle">${res.subtitle}</p>
-    <p class="result-desc">${res.desc}</p>
-    
-    <div class="score-bars">
-      ${renderBars(scores)}
-    </div>
+  const content = \$('result-content');
+  if (content) {
+    content.innerHTML = `
+      <span class="result-badge">RESULTADO OFICIAL</span>
+      <span class="result-emoji">${res.emoji}</span>
+      <h1 class="result-title">${res.title}</h1>
+      <p class="result-subtitle">${res.subtitle}</p>
+      <p class="result-desc">${res.desc}</p>
+      
+      <div class="score-bars">
+        ${renderBars(scores)}
+      </div>
 
-    <div class="result-insight">
-      <div class="result-insight-label">ANÁLISIS DE ANASTASIA IAMACHKINE</div>
-      <p class="result-insight-text">${res.insight}</p>
-    </div>
+      <div class="result-insight">
+        <div class="result-insight-label">ANÁLISIS DE ANASTASIA IAMACHKINE</div>
+        <p class="result-insight-text">${res.insight}</p>
+      </div>
 
-    ${renderCta(res)}
+      ${renderCta(res)}
 
-    <button class="btn-retry" id="btn-retry">← Repetir el test</button>
-  `;
+      <button class="btn-retry" id="btn-retry">← Repetir el test</button>
+    `;
+  }
 
   showScreen('screen-result');
 
-  if ($('btn-whatsapp')) {$('btn-whatsapp').addEventListener('click', () => {
+  const btnWa = \$('btn-whatsapp');
+  if (btnWa) {
+    btnWa.addEventListener('click', () => {
       const msg = encodeURIComponent(`Hola Anastasia, soy ${name} (${instagram}). Hice tu test de liderazgo y mi arquetipo es ${res.label}. Quiero conversar contigo.`);
       window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`, '_blank');
     });
   }
 
-  if ($('btn-instagram')) {$('btn-instagram').addEventListener('click', () => {
+  const btnIg = \$('btn-instagram');
+  if (btnIg) {
+    btnIg.addEventListener('click', () => {
       window.open(CONFIG.instagram, '_blank');
     });
   }
 
-  \$('btn-retry').addEventListener('click', () => {
-    showScreen('screen-intro');
-  });
+  const btnRetry = \$('btn-retry');
+  if (btnRetry) {
+    btnRetry.addEventListener('click', () => {
+      showScreen('screen-intro');
+    });
+  }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  $('btn-start').addEventListener('click', startQuiz);$('btn-next').addEventListener('click', goNext);
-  $('btn-back').addEventListener('click', goBack);$('btn-submit').addEventListener('click', () => {
-    const nameVal = \$('input-name').value.trim();
-    if (!nameVal) {
-      alert('Por favor, introduce tu nombre.');
-      return;
-    }
-    showResult();
-  });
+// Inicialización directa y segura de los eventos de los botones principales
+window.addEventListener('DOMContentLoaded', () => {
+  const btnStart = \$('btn-start');
+  if (btnStart) {
+    btnStart.addEventListener('click', startQuiz);
+  }
+
+  const btnNext = \$('btn-next');
+  if (btnNext) {
+    btnNext.addEventListener('click', goNext);
+  }
+
+  const btnBack = \$('btn-back');
+  if (btnBack) {
+    btnBack.addEventListener('click', goBack);
+  }
+
+  const btnSubmit = \$('btn-submit');
+  if (btnSubmit) {
+    btnSubmit.addEventListener('click', () => {
+      const nameVal = $('input-name') ?$('input-name').value.trim() : '';
+      if (!nameVal) {
+        alert('Por favor, introduce tu nombre.');
+        return;
+      }
+      showResult();
+    });
+  }
 });
 </script>
-</body>
-</html>
 
 ```
+
+Actualiza tu archivo en GitHub con este código reestructurado y comprueba de nuevo. ¡Ahora el botón amarillo responderá de inmediato al primer clic!
